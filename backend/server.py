@@ -37,6 +37,30 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# User Models
+class User(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: str
+    phone: str
+    password: str  # In production, this should be hashed
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserSignup(BaseModel):
+    name: str
+    email: str
+    phone: str
+    password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class ForgotPassword(BaseModel):
+    email: str
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
