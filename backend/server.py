@@ -57,7 +57,7 @@ class User(BaseModel):
     name: str
     email: str
     phone: str
-    password: str  # In production, this should be hashed
+    password: str  # This will be stored as hashed
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UserSignup(BaseModel):
