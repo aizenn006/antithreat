@@ -112,8 +112,14 @@ async def signup(user_data: UserSignup):
         if existing_user:
             return {"success": False, "message": "User with this email already exists"}
         
-        # Create new user
-        user = User(**user_data.model_dump())
+        # Hash the password
+        hashed_password = hash_password(user_data.password)
+        
+        # Create new user with hashed password
+        user_dict = user_data.model_dump()
+        user_dict['password'] = hashed_password
+        user = User(**user_dict)
+        
         doc = user.model_dump()
         doc['created_at'] = doc['created_at'].isoformat()
         
@@ -143,8 +149,8 @@ async def login(credentials: UserLogin):
         if not user:
             return {"success": False, "message": "Invalid email or password"}
         
-        # Check password (in production, use proper password hashing)
-        if user['password'] != credentials.password:
+        # Verify password using hash
+        if not verify_password(credentials.password, user['password']):
             return {"success": False, "message": "Invalid email or password"}
         
         return {
