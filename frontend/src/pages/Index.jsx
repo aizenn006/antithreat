@@ -25,7 +25,7 @@ const Index = () => {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          SafeGuard © 2025 • Your Safety, Our Priority
+          Anti Threat © 2025 • Your Safety, Our Priority
         </p>
       </div>
     </div>

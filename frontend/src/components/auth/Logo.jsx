@@ -49,7 +49,7 @@ const Logo = ({ size = "large" }) => {
       {/* Brand Name */}
       <div className="text-center">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-blue-400 to-pink-400 bg-clip-text text-transparent">
-          SafeGuard
+          Anti Threat
         </h1>
         <p className="text-xs text-muted-foreground mt-1">Your Safety, Our Priority</p>
       </div>
