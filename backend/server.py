@@ -90,6 +90,87 @@ async def get_status_checks():
     
     return status_checks
 
+# Authentication Routes
+@api_router.post("/auth/signup")
+async def signup(user_data: UserSignup):
+    """Register a new user"""
+    try:
+        # Check if user already exists
+        existing_user = await db.users.find_one({"email": user_data.email}, {"_id": 0})
+        if existing_user:
+            return {"success": False, "message": "User with this email already exists"}
+        
+        # Create new user
+        user = User(**user_data.model_dump())
+        doc = user.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        
+        await db.users.insert_one(doc)
+        
+        return {
+            "success": True,
+            "message": "User registered successfully",
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "phone": user.phone
+            }
+        }
+    except Exception as e:
+        logger.error(f"Signup error: {str(e)}")
+        return {"success": False, "message": "Signup failed"}
+
+@api_router.post("/auth/login")
+async def login(credentials: UserLogin):
+    """Login user"""
+    try:
+        # Find user by email
+        user = await db.users.find_one({"email": credentials.email}, {"_id": 0})
+        
+        if not user:
+            return {"success": False, "message": "Invalid email or password"}
+        
+        # Check password (in production, use proper password hashing)
+        if user['password'] != credentials.password:
+            return {"success": False, "message": "Invalid email or password"}
+        
+        return {
+            "success": True,
+            "message": "Login successful",
+            "user": {
+                "id": user['id'],
+                "name": user['name'],
+                "email": user['email'],
+                "phone": user['phone']
+            }
+        }
+    except Exception as e:
+        logger.error(f"Login error: {str(e)}")
+        return {"success": False, "message": "Login failed"}
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(data: ForgotPassword):
+    """Send password reset email"""
+    try:
+        # Check if user exists
+        user = await db.users.find_one({"email": data.email}, {"_id": 0})
+        
+        if not user:
+            # For security, don't reveal if email doesn't exist
+            return {"success": True, "message": "If the email exists, reset instructions have been sent"}
+        
+        # In production, send actual email with reset token
+        logger.info(f"Password reset requested for: {data.email}")
+        
+        return {
+            "success": True,
+            "message": "Password reset instructions sent to your email"
+        }
+    except Exception as e:
+        logger.error(f"Forgot password error: {str(e)}")
+        return {"success": False, "message": "Failed to process request"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
